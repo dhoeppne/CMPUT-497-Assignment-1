@@ -1,17 +1,20 @@
 # import external libraries
-import sys, os
+import sys, os, re
 # import my files
-import analyzeFile
+from analyzeFile import analyzeFile
+from infobox import infobox
+from textfield import textfield
 
 def main(directory):
     files = os.listdir(directory)
-    for file in files:
-        if file.endswith(".wiki"):
-            newFile = analyzeFile(file)
+    for fileName in files:
+        if fileName.endswith(".wiki"):
+            fileObject = analyzeFile(os.path.join(directory, fileName))
+            break
 
 if __name__ == '__main__':
     #check command line arguments
     if len(sys.argv) == 2:
         main(sys.argv[1])
     else:
-        print("Usage: ./create_index.py <directory of files for analysis>\n")
+        print("Usage: ./main.py <directory of files for analysis>\n")

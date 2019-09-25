@@ -1,1 +1,2 @@
-print("infobox")
+def infobox():
+    print("infobox")
