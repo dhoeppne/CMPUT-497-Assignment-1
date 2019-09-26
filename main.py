@@ -2,7 +2,7 @@
 import sys, os, re
 # import my files
 from analyzeFile import analyzeFile
-from infobox import infobox
+from tsvPrint import tsvPrint
 from textfield import textfield
 
 def main(directory):
@@ -10,7 +10,7 @@ def main(directory):
     for fileName in files:
         if fileName.endswith(".wiki"):
             fileObject = analyzeFile(os.path.join(directory, fileName))
-            break
+            tsvPrint(fileObject)
 
 if __name__ == '__main__':
     #check command line arguments

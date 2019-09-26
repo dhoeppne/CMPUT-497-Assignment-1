@@ -1,37 +1,61 @@
 import re
 
+reInfo = re.compile(r"\b\w+[\s\w]+\b")
+typeRe = re.compile(r"\w+\s$")
+
 def analyzeFile(fileName):
     bracketStack = []
     fileObject = {
-        "articleType": "",
-        "name": "",
+        "articleType": [],
+        "name": [],
         "director": [],
         "producer": [],
-        "musicComposer": [],
+        "music": [],
         "starring": [],
         "writer": [],
-        "country": "",
-        "language": ""
+        "country": [],
+        "language": [],
+        "studio": []
     }
     keys = fileObject.keys()
+    key = ""
 
     with open(fileName, "r") as file:
         for line in file:
-            if len(bracketStack) > 0 and len(bracketStack) <= 2:
-                matches = re.findall("[\|\S]\S\w+\S", line)
-                if len(matches) > 0:
-                    if matches[0] in keys:
-                        fileObject[matches[0]] = matches[1]
-
-            if "{{" in line and "}}" not in line:
-                bracketStack.append("{{")
-
-                if re.search("Infobox", line):
-                    fileObject["articleType"] = re.search("\w+$", line).group()
-            elif "}}" in line and "{{" not in line:
-                bracketStack.pop()
-
-            if fileObject["articleType"] != "" and len(bracketStack) == 0:
+            if len(fileObject["articleType"]) != 0 and len(bracketStack) == 0:
                 break
 
-        print(fileObject)
+            if "{{" in line:
+                # use count here because regex can't match brackets well
+                numBrackets = line.count("{{")
+                for i in range(numBrackets):
+                    bracketStack.append("{{")
+
+                if re.search(r"^{{Infobox", line):
+                    typeMatch = re.search(typeRe, line)
+                    fileObject["articleType"].append(typeMatch.group())
+
+            if "}}" in line:
+                numBrackets = line.count("}}")
+
+                for i in range(numBrackets):
+                    bracketStack.pop()
+
+                if len(key) > 1:
+                    key = ""
+
+            if len(bracketStack) > 0 and len(bracketStack) <= 2:
+                matches = re.findall(reInfo, line)
+
+                if matches and len(bracketStack) == 2 and len(key) == 0:
+                    key = matches[0]
+
+                if len(matches) > 0:
+                    if matches[0] in keys and not len(bracketStack) > 1:
+                        fileObject[matches[0]].append(matches[1])
+                    elif len(bracketStack) == 2 and key not in matches[0]:
+                        match = re.search(reInfo, line)
+                        if match and key in keys:
+                            fileObject[key].append(match.group())
+
+    return fileObject
