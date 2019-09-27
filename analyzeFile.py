@@ -6,7 +6,7 @@ typeRe = re.compile(r"\w+\s$")
 def analyzeFile(fileName):
     bracketStack = []
     fileObject = {
-        "articleType": [],
+        "is": [],
         "name": [],
         "director": [],
         "producer": [],
@@ -22,7 +22,7 @@ def analyzeFile(fileName):
 
     with open(fileName, "r") as file:
         for line in file:
-            if len(fileObject["articleType"]) != 0 and len(bracketStack) == 0:
+            if len(fileObject["is"]) != 0 and len(bracketStack) == 0:
                 break
 
             if "{{" in line:
@@ -33,16 +33,7 @@ def analyzeFile(fileName):
 
                 if re.search(r"^{{Infobox", line):
                     typeMatch = re.search(typeRe, line)
-                    fileObject["articleType"].append(typeMatch.group())
-
-            if "}}" in line:
-                numBrackets = line.count("}}")
-
-                for i in range(numBrackets):
-                    bracketStack.pop()
-
-                if len(key) > 1:
-                    key = ""
+                    fileObject["is"].append(typeMatch.group().strip())
 
             if len(bracketStack) > 0 and len(bracketStack) <= 2:
                 matches = re.findall(reInfo, line)
@@ -57,5 +48,14 @@ def analyzeFile(fileName):
                         match = re.search(reInfo, line)
                         if match and key in keys:
                             fileObject[key].append(match.group())
+
+            if "}}" in line:
+                numBrackets = line.count("}}")
+
+                for i in range(numBrackets):
+                    bracketStack.pop()
+
+                if len(key) > 1:
+                    key = ""
 
     return fileObject
