@@ -1,5 +1,4 @@
 import os
-
 def tsvPrint(articleInfo, folder):
     articleName = articleInfo["name"][0]
     fileName = os.path.join(folder, articleName + ".tsv")
