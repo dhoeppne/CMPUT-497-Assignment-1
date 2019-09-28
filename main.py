@@ -16,6 +16,7 @@ def main(directory):
     except:
 	    os.mkdir(folderName)
 
+    # go through files and parse
     for fileName in files:
         if fileName.endswith(".wiki"):
             fileObject = analyzeFile(os.path.join(directory, fileName))
