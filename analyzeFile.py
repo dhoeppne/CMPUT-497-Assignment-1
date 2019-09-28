@@ -10,21 +10,22 @@ pipeRe = re.compile(r"(?:\|[\w]+).*?(?:])")
 
 def analyzeFile(fileName):
     bracketStack = []
-    fileObject = {
-        "type": [],
-        "name": [],
-        "director": [],
-        "producer": [],
-        "music": [],
-        "starring": [],
-        "writer": [],
-        "country": [],
-        "language": [],
-        "studio": [],
-        "screenplay": [],
-        "editing": [],
-        "distributor": []
-    }
+    relationList = [
+        "is",
+        "name",
+        "director",
+        "producer",
+        "music",
+        "starring",
+        "writer",
+        "country",
+        "language",
+        "studio",
+        "screenplay",
+        "editing",
+        "distributor"
+    ]
+    fileObject = compileFileObject(relationList)
     keys = fileObject.keys()
     key = ""
 
@@ -37,7 +38,7 @@ def analyzeFile(fileName):
             if re.search(pipeRe, line) and "<br />" in line:
                 line = re.sub(pipeRe, "]", line)
             # check if Infobox has been exited
-            if len(fileObject["type"]) != 0 and len(bracketStack) == 0:
+            if len(fileObject["is"]["fact"]) != 0 and len(bracketStack) == 0:
                 break
 
             if "{{" in line:
@@ -48,7 +49,7 @@ def analyzeFile(fileName):
 
                 if re.search(r"^{{Infobox", line):
                     typeMatch = re.search(r"\w+\s$", line)
-                    fileObject["type"].append(typeMatch.group().strip())
+                    fileObject["is"]["fact"].append(typeMatch.group().strip())
 
             if len(bracketStack) > 0 and len(bracketStack) <= 2:
                 keyMatch = re.findall(r"^\|\s*?(\b\w+\b)", line)
@@ -61,15 +62,15 @@ def analyzeFile(fileName):
                         # find all names
                         matches = re.findall(nameRe, line)
                         for match in matches:
-                            if match not in fileObject[key]:
-                                fileObject[key].append(match)
+                            if match not in fileObject[key]["fact"]:
+                                fileObject[key]["fact"].append(match)
                         # reset key
                         key = ""
                     # check for basic line match with key
                     elif not len(bracketStack) > 1:
                         match = re.search(nameRe, line)
                         if match:
-                            fileObject[key].append(match.group())
+                            fileObject[key]["fact"].append(match.group())
                         # reset key
                         key = ""
 
@@ -77,7 +78,7 @@ def analyzeFile(fileName):
                 elif len(bracketStack) == 2 and key not in keyMatch:
                     match = re.search(nameRe, line)
                     if match and key in keys:
-                        fileObject[key].append(match.group())
+                        fileObject[key]["fact"].append(match.group())
 
             if "}}" in line:
                 numBrackets = line.count("}}")
@@ -90,3 +91,12 @@ def analyzeFile(fileName):
 
     return fileObject
 
+def compileFileObject(relations):
+    fileObject = {}
+    for relation in relations:
+        fileObject[relation] = {
+            "fact": [],
+            "evidence": []
+        }
+
+    return fileObject

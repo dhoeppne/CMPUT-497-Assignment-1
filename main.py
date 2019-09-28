@@ -18,9 +18,14 @@ def main(directory):
 
     for fileName in files:
         if fileName.endswith(".wiki"):
+            print("Processing " + fileName)
+            print("\tGathering facts...")
             fileObject = analyzeFile(os.path.join(directory, fileName))
-            proof = textfield(os.path.join(directory, fileName), fileObject)
+            print("\tGathering evidence...")
+            textfield(os.path.join(directory, fileName), fileObject)
+            print("\tCreating tsv file...")
             tsvPrint(fileObject, folderName)
+            print("Done processing " + fileName + "\n")
 
 if __name__ == '__main__':
     #check command line arguments
