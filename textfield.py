@@ -15,7 +15,6 @@ synonymsDict = {
 
 def textfield(fileName, fileObject):
         for relation in fileObject.keys():
-            print("\t\tGathering evidence for facts about the relation " + relation)
             matches = fileObject[relation]["fact"]
 
             for fact in matches:
